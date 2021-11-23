@@ -14,9 +14,8 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main.view.*
 
+const val USERNAME_EXTRA:String ="Username"
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,7 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     private val CONTACT_PERMISSION_CODE = 1;
     private val CONTACT_PICK_CODE = 2
-    lateinit var contactName : String
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,17 +36,29 @@ class MainActivity : AppCompatActivity() {
 
         initialize()
 
+
+
+        startButton.setOnClickListener {
+            if (!playerName.text.toString().isEmpty())
+            {
+                startQuiz()
+            }
+            else
+            {
+                Toast.makeText(this,"Please enter your name!",Toast.LENGTH_SHORT).show()
+            }
+        }
+
         contactButton.setOnClickListener {
 
             if (checkContactPermission()) {
-            pickContact()
-        }
-        else{
-            requestContactPermission()
-        }
-        }
+                pickContact()
 
-        startButton.setOnClickListener {  }
+            }
+            else{
+                requestContactPermission()
+            }
+        }
 
 
     }
@@ -57,6 +67,15 @@ class MainActivity : AppCompatActivity() {
         playerName = findViewById<EditText>(R.id.editText)
         startButton = findViewById<Button>(R.id.startButton)
         contactButton = findViewById<Button>(R.id.contactButton)
+    }
+
+    private fun startQuiz() {
+
+        val userName = playerName.text.toString()
+        val intent = Intent(this, QuizActivity::class.java)
+        intent.putExtra(USERNAME_EXTRA, userName)
+        startActivity(intent)
+
     }
 
     private fun checkContactPermission(): Boolean{
@@ -71,7 +90,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun pickContact(){
-        //intent ti pick contact
+        //intent  pick contact
         val intent = Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
         startActivityForResult(intent, CONTACT_PICK_CODE)
 
@@ -112,7 +131,7 @@ class MainActivity : AppCompatActivity() {
                 cursor1 = contentResolver.query(uri!!, null, null, null, null)!!
                 if (cursor1.moveToFirst()){
                     //get contact details
-                    contactName = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
+                    val contactName = cursor1.getString(cursor1.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME))
 
 
                     cursor1.close()
@@ -125,9 +144,5 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-
-
-
-
 }
+
